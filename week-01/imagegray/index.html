@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片灰度处理</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+    }
+    h3 {
+      margin: 0;
+    }
+    .gray-action-wrap {
+      padding: 20px;
+    }
+    .btn-file-selctor {
+      margin-top: 10px;
+    }
+    .gray-preview-container {
+      margin-top: 10px;
+      display: flex;
+    }
+    .img-container {
+      width: 300px;
+      margin-right: 20px;
+    }
+    .img-container > img {
+      width: 100%;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="gray-action-wrap">
+    <h3>图片灰度处理</h3>
+    <div class="btn-file-selctor">
+      <input 
+        type="file" 
+        id="img" 
+        accept="image/*" 
+        onchange="loadFile(event)" 
+      />
+    </div>
+    <div class="gray-preview-container">
+      <div class="img-container">
+        <img id="img-local-preview"/>
+      </div>
+      <div class="img-container">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+    
+  </div>
+  <script>
+    const loadFile = function (event) {
+      // const reader = new FileReader();
+      // reader.onload = function () {
+      //   const img = document.querySelector('#img-local-preview');
+      //   img.src = reader.result;
+      // };
+      // reader.readAsDataURL(event.target.files[0]);
+
+      const img = document.querySelector('#img-local-preview');
+      img.src = URL.createObjectURL(event.target.files[0]);
+
+      img.onload = () => {
+        console.log(Object(img))
+        gray(img);
+      }
+    };
+
+    const gray = function(img) {
+      const { width, height } = img
+      const canvas = document.querySelector("#canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const dataArr = imageData.data;
+
+      for (let i = 0; i < dataArr.length; i += 4) {
+        const avg = (dataArr[i] + dataArr[i + 1] + dataArr[i + 2]) / 3;
+        // R
+        dataArr[i] = avg;
+        // G
+        dataArr[i + 1] = avg;
+        // B
+        dataArr[i + 2] = avg;
+      }
+
+      imageData.data = dataArr;
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+  </script>
+</body>
+</html>
